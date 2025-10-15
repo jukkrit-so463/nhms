@@ -99,11 +99,27 @@ db.query(`
   )
 `);
 
-db.query(`ALTER TABLE home_types ADD COLUMN IF NOT EXISTS subunit_type VARCHAR(50)`, (err) => {
+db.query(`ALTER TABLE home_types ADD COLUMN subunit_type VARCHAR(50)`, (err) => {
   if (err && !err.message.includes('Duplicate column')) {
     console.error("Error adding subunit_type column:", err);
   }
 });
+// Utility: check if a column exists in current database schema
+function checkColumnExists(tableName, columnName, cb) {
+  const sql = `SELECT COUNT(*) AS cnt
+               FROM INFORMATION_SCHEMA.COLUMNS
+               WHERE TABLE_SCHEMA = DATABASE()
+                 AND TABLE_NAME = ?
+                 AND COLUMN_NAME = ?`;
+  db.query(sql, [tableName, columnName], (err, rows) => {
+    if (err) {
+      // If we cannot check, assume not exists to keep queries safe
+      return cb(false);
+    }
+    cb(rows && rows[0] && rows[0].cnt > 0);
+  });
+}
+
 
 db.query(`
   INSERT IGNORE INTO home_types (name, description, subunit_type, max_capacity)
@@ -163,7 +179,7 @@ db.query(`
     FOREIGN KEY (subunit_id) REFERENCES subunit_home(id)
   )`);
 
-  db.query(`ALTER TABLE home ADD COLUMN IF NOT EXISTS home_unit_id INT NULL`, (err) => {
+  db.query(`ALTER TABLE home ADD COLUMN home_unit_id INT NULL`, (err) => {
   if (err && !err.message.includes('Duplicate column')) {
     console.error("Error adding home_unit_id column:", err);
   } else {
@@ -229,7 +245,7 @@ db.query(`CREATE TABLE IF NOT EXISTS guest_logs (
     }
   });
 
-  db.query(`ALTER TABLE home_types ADD COLUMN IF NOT EXISTS description TEXT`, (err) => {
+  db.query(`ALTER TABLE home_types ADD COLUMN description TEXT`, (err) => {
     if (err && !err.message.includes('Duplicate column')) {
       console.error("Error adding description column:", err);
     }
@@ -237,7 +253,7 @@ db.query(`CREATE TABLE IF NOT EXISTS guest_logs (
 
 
   // เพิ่มหลังบรรทัด 130 (หลังสร้างตาราง guest)
-  db.query(`ALTER TABLE guest ADD COLUMN IF NOT EXISTS is_right_holder BOOLEAN DEFAULT FALSE`, (err) => {
+  db.query(`ALTER TABLE guest ADD COLUMN is_right_holder BOOLEAN DEFAULT FALSE`, (err) => {
     if (err && !err.message.includes('Duplicate column')) {
       console.error("Error adding is_right_holder column:", err);
     } else {
@@ -255,7 +271,7 @@ db.query(`CREATE TABLE IF NOT EXISTS guest_logs (
   });
 
   // เพิ่มคอลัมน์สำหรับเก็บคำนำหน้าทั่วไป
-  db.query(`ALTER TABLE guest ADD COLUMN IF NOT EXISTS title VARCHAR(20)`, (err) => {
+  db.query(`ALTER TABLE guest ADD COLUMN title VARCHAR(20)`, (err) => {
     if (err && !err.message.includes('Duplicate column')) {
       console.error("Error adding title column:", err);  
     } else {
@@ -368,7 +384,7 @@ db.query("SELECT * FROM home_types", (err, types) => {
 
 
   // เพิ่มคอลัมน์ image_url ในตาราง guest (หลังบรรทัด ~180)
-  db.query(`ALTER TABLE guest ADD COLUMN IF NOT EXISTS image_url VARCHAR(255)`, (err) => {
+  db.query(`ALTER TABLE guest ADD COLUMN image_url VARCHAR(255)`, (err) => {
     if (err && !err.message.includes('Duplicate column')) {
       console.error("Error adding image_url column:", err);
     } else {
@@ -584,77 +600,92 @@ app.post("/api/homes", upload.single("image"), (req, res) => {
 // ดึง guest ทั้งหมด (JOIN ranks) - แก้ไขให้รองรับ filter ผู้ถือสิทธิ
 app.get("/api/guests", (req, res) => {
   const { right_holders_only } = req.query;
-  
-  let sql = `
-    SELECT guest.*, 
-           COALESCE(ranks.name, guest.title) as rank, 
-           home_types.name as hType, 
-           home.Address 
-    FROM guest 
-    LEFT JOIN ranks ON guest.rank_id = ranks.id
-    LEFT JOIN home ON guest.home_id = home.home_id
-    LEFT JOIN home_types ON home.home_type_id = home_types.id
-  `;
-  
-  // เพิ่มเงื่อนไขถ้าต้องการเฉพาะผู้ถือสิทธิ
-  if (right_holders_only === 'true') {
-    sql += " WHERE guest.is_right_holder = TRUE";
-  }
-  
-  sql += " ORDER BY guest.is_right_holder DESC, guest.id ASC";
-  
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ error: "Database error" });
+
+  checkColumnExists('guest', 'is_right_holder', (hasRightHolder) => {
+    let sql = `
+      SELECT guest.*, 
+             COALESCE(ranks.name, guest.title) as rank, 
+             home_types.name as hType, 
+             home.Address 
+      FROM guest 
+      LEFT JOIN ranks ON guest.rank_id = ranks.id
+      LEFT JOIN home ON guest.home_id = home.home_id
+      LEFT JOIN home_types ON home.home_type_id = home_types.id
+    `;
+
+    const params = [];
+    if (right_holders_only === 'true' && hasRightHolder) {
+      sql += " WHERE guest.is_right_holder = TRUE";
     }
-    res.json(results);
+
+    if (hasRightHolder) {
+      sql += " ORDER BY guest.is_right_holder DESC, guest.id ASC";
+    } else {
+      sql += " ORDER BY guest.id ASC";
+    }
+
+    db.query(sql, params, (err, results) => {
+      if (err) {
+        console.error("/api/guests error:", err);
+        // Fallback: try a minimal query to keep UI working and aid debugging
+        db.query("SELECT * FROM guest ORDER BY id ASC", (simpleErr, simpleRows) => {
+          if (simpleErr) {
+            console.error("/api/guests simple fallback error:", simpleErr);
+            return res.status(500).json({ error: "Database error", details: err.message });
+          }
+          return res.json({ fallback: true, note: "JOIN failed; returning basic guest rows", rows: simpleRows });
+        });
+        return;
+      }
+      res.json(results);
+    });
   });
 });
 
 // ปรับ API /api/guests/search ให้รองรับ type และ right_holders_only
 app.get("/api/guests/search", (req, res) => {
   const { q, type, right_holders_only } = req.query;
-  
-  let sql = `
-    SELECT guest.*, 
-           COALESCE(ranks.name, guest.title) as rank, 
-           home_types.name as hType, 
-           home.Address 
-    FROM guest 
-    LEFT JOIN ranks ON guest.rank_id = ranks.id
-    LEFT JOIN home ON guest.home_id = home.home_id
-    LEFT JOIN home_types ON home.home_type_id = home_types.id
-    WHERE 1 = 1
-  `;
-  
-  const params = [];
-  
-  // เพิ่มเงื่อนไขค้นหาชื่อ
-  if (q && q.trim() !== '') {
-    sql += " AND (guest.name LIKE ? OR guest.lname LIKE ?)";
-    params.push(`%${q.trim()}%`, `%${q.trim()}%`);
-  }
-  
-  // เพิ่มเงื่อนไขประเภทบ้าน
-  if (type && type.trim() !== '') {
-    sql += " AND home_types.name = ?";
-    params.push(type.trim());
-  }
-  
-  // เพิ่มเงื่อนไขผู้ถือสิทธิ์
-  if (right_holders_only === 'true') {
-    sql += " AND guest.is_right_holder = TRUE";
-  }
-  
-  sql += " ORDER BY guest.is_right_holder DESC, guest.id ASC";
-  
-  db.query(sql, params, (err, results) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ error: "Database error" });
+
+  checkColumnExists('guest', 'is_right_holder', (hasRightHolder) => {
+    let sql = `
+      SELECT guest.*, 
+             COALESCE(ranks.name, guest.title) as rank, 
+             home_types.name as hType, 
+             home.Address 
+      FROM guest 
+      LEFT JOIN ranks ON guest.rank_id = ranks.id
+      LEFT JOIN home ON guest.home_id = home.home_id
+      LEFT JOIN home_types ON home.home_type_id = home_types.id
+      WHERE 1 = 1
+    `;
+
+    const params = [];
+
+    if (q && q.trim() !== '') {
+      sql += " AND (guest.name LIKE ? OR guest.lname LIKE ?)";
+      params.push(`%${q.trim()}%`, `%${q.trim()}%`);
     }
-    res.json(results);
+    if (type && type.trim() !== '') {
+      sql += " AND home_types.name = ?";
+      params.push(type.trim());
+    }
+    if (right_holders_only === 'true' && hasRightHolder) {
+      sql += " AND guest.is_right_holder = TRUE";
+    }
+
+    if (hasRightHolder) {
+      sql += " ORDER BY guest.is_right_holder DESC, guest.id ASC";
+    } else {
+      sql += " ORDER BY guest.id ASC";
+    }
+
+    db.query(sql, params, (err, results) => {
+      if (err) {
+        console.error("/api/guests/search error:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+      res.json(results);
+    });
   });
 });
 
@@ -955,11 +986,11 @@ app.get("/api/eligibility", (req, res) => {
 app.get("/api/guest_logs", (req, res) => {
   // เพิ่มคอลัมน์ที่จำเป็นในตาราง guest_logs ก่อน
   const alterQueries = [
-    "ALTER TABLE guest_logs ADD COLUMN IF NOT EXISTS rank_name VARCHAR(50)",
-    "ALTER TABLE guest_logs ADD COLUMN IF NOT EXISTS name VARCHAR(255)", 
-    "ALTER TABLE guest_logs ADD COLUMN IF NOT EXISTS lname VARCHAR(255)",
-    "ALTER TABLE guest_logs ADD COLUMN IF NOT EXISTS home_address VARCHAR(255)",
-    "ALTER TABLE guest_logs ADD COLUMN IF NOT EXISTS home_type_name VARCHAR(255)"
+    "ALTER TABLE guest_logs ADD COLUMN rank_name VARCHAR(50)",
+    "ALTER TABLE guest_logs ADD COLUMN name VARCHAR(255)", 
+    "ALTER TABLE guest_logs ADD COLUMN lname VARCHAR(255)",
+    "ALTER TABLE guest_logs ADD COLUMN home_address VARCHAR(255)",
+    "ALTER TABLE guest_logs ADD COLUMN home_type_name VARCHAR(255)"
   ];
 
   // รันคำสั่ง ALTER TABLE ทั้งหมด

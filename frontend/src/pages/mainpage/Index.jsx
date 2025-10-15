@@ -15,7 +15,7 @@ export default function MainPage() {
   const { home_id } = useParams();
 
   useEffect(() => {
-    axios.get("http://localhost:3001/api/homes")
+    axios.get("/api/homes")
       .then(res => {
         setHomes(res.data);
       })
@@ -35,11 +35,7 @@ export default function MainPage() {
               <Card style={{ width: '20rem' }}>
                 <Card.Img
                   variant="top"
-                  src={
-                    home.image
-                      ? `http://localhost:3001/uploads/${home.image}`
-                      : "/img/house-default.png"
-                  }
+                  src={home.image ? `/uploads/${home.image}` : "/img/house-default.png"}
                   alt="home"
                   style={{ width: "100%", height: 200, objectFit: "cover" }}
                 />

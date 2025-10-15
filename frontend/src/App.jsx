@@ -1,3 +1,4 @@
+// frontend/src/App.jsx
 
 import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -11,6 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Lobby from "./pages/lobby/lobby.jsx";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
+// ... (import component อื่นๆ ของคุณทั้งหมด)
 import Addhome from "./components/Addhome";
 import Edithome from "./components/Edithome";
 import HomePage from "./pages/HomePage";
@@ -36,7 +38,6 @@ import GenericHomePage from './pages/GenericHomePage';
 import HomeTypeSelectPage from "./pages/typepage/HomeTypeSelectPage.jsx";
 import ManageUser from "./components/manageuser.jsx";
 
-
 function App() {
   const [loggedIn, setLoggedIn] = useState(isAuthenticated());
 
@@ -53,8 +54,8 @@ function App() {
         {loggedIn ? (
           /* --- ส่วนของผู้ใช้ที่ Login แล้ว --- */
           <Route path="/" element={<MainPage onLogout={handleLogout} />}>
-            {/* หน้าแรกเริ่มต้นหลัง Login */}
-            <Route index element={<Navigate to="/dashboard" />} />
+            {/* หน้าแรกเริ่มต้นหลัง Login จะถูกส่งไป dashboard */}
+            <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             
             {/* หน้าอื่นๆ ทั้งหมดที่ต้อง Login ก่อน */}
@@ -85,9 +86,9 @@ function App() {
             <Route path="manageuser" element={<ManageUser />} />
 
             {/* ถ้าคน Login แล้วไปหน้า /login จะถูกส่งไป /dashboard */}
-            <Route path="/login" element={<Navigate to="/dashboard" />} />
+            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
             {/* ถ้าเข้า URL ที่ไม่มีอยู่จริง จะถูกส่งไป /dashboard */}
-            <Route path="*" element={<Navigate to="/dashboard" />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
         ) : (
           /* --- ส่วนของผู้ใช้ที่ยังไม่ได้ Login --- */
@@ -97,7 +98,7 @@ function App() {
             <Route path="/" element={<Lobby />} />
             
             {/* ถ้ายังไม่ Login แล้วพยายามเข้าหน้าอื่น จะถูกส่งกลับมาที่ /login */}
-            <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </>
         )}
       </Routes>
