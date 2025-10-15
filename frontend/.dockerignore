@@ -1,0 +1,12 @@
+node_modules
+npm-debug.log
+Dockerfile
+.git
+.gitignore
+.env
+.env.*
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+

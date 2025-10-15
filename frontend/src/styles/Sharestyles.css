@@ -1,0 +1,409 @@
+/* ===== DASHBOARD CONTAINER ===== */
+.dashboard-container {
+  min-height: 100vh;
+  background: #fafbff;
+  padding: 0 0 64px 0;
+}
+
+.content-container {
+  flex: 1;
+  padding: 32px;
+}
+
+/* ===== HEADER TITLE ===== */
+.page-title {
+  color: #3b2566;
+  font-weight: bold;
+  font-size: 30px;
+  padding: 18px 48px;
+  border-radius: 8px;
+  border: 6px solid #31c3e7;
+  box-shadow: 8px 8px 0 #2b2b3d;
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  letter-spacing: 2px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  max-width: 90%;
+}
+
+.title-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: left;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+/* ===== MAIN CONTENT LAYOUT ===== */
+.main-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 64px;
+  width: 96vw;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* ===== FORM CARD ===== */
+.form-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px #e5e7eb;
+  width: 600px;
+  padding: 38px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-full-width {
+  width: 100%;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group-large {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 10px;
+  min-height: 80px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.form-checkbox {
+  margin-right: 8px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.form-file {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+}
+
+/* ===== FORM HELPERS ===== */
+.form-help-text {
+  color: #6b7280;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-section-title {
+  margin: 0 0 16px 0;
+  color: #3b2566;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* ===== BUTTONS ===== */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.button-group .btn-primary {
+  background: #10b981; /* เขียว - ยืนยัน */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.button-group .btn-primary:hover {
+  background: #059669; /* เขียวเข้มเมื่อ hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.button-group .btn-secondary {
+  background: #ef4444; /* แดง - ยกเลิก */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.button-group .btn-secondary:hover {
+  background: #dc2626; /* แดงเข้มเมื่อ hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger {
+  background: #ff0000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.btn-small {
+  padding: 10px 20px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+/* ===== TAB NAVIGATION ===== */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.tab-button {
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  background: #3b82f6;
+}
+
+.tab-button.inactive {
+  background: #6b7280;
+}
+
+.tab-button:hover {
+  transform: translateY(-1px);
+}
+
+/* ===== LIST ITEMS - Grid Layout ===== */
+.list-container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 16px;
+  
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafbff;
+  
+  /* ✅ ลบจุด list-style */
+  list-style: none; /* ลบจุดออก */
+  
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  min-width: 0;
+  word-break: break-word;
+}
+
+.list-item-content {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.btn-danger.btn-small {
+  padding: 8px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  background: #f43f5e;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-left: 16px;
+  transition: background 0.2s;
+}
+
+.btn-danger.btn-small:hover {
+  background: #dc2626;
+}
+
+/* ✅ ลบจุดออกจาก pseudo-elements */
+.list-item::before {
+  display: none; /* ซ่อน pseudo-element ที่อาจสร้างจุด */
+}
+
+.list-item-content {
+  flex: 1;
+  margin-bottom: 16px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  /* ✅ ลบจุดออก */
+  list-style: none;
+}
+
+.list-item-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+  line-height: 1.3;
+  text-align: center;
+  
+  /* ✅ ลบจุดออก */
+  list-style: none;
+  list-style-type: none;
+}
+
+.list-item-title::before {
+  display: none; /* ลบจุดที่อาจมาจาก pseudo-element */
+}
+
+/* ... ส่วนอื่นๆ เหมือนเดิม ... */
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .main-content {
+    width: 100%;
+    padding: 0 16px;
+    gap: 16px;
+  }
+  
+  .form-card {
+    width: 100%;
+    padding: 24px 16px;
+  }
+  
+  .page-title {
+    font-size: 20px;
+    padding: 12px 24px;
+    letter-spacing: 1px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .tab-navigation {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* ===== UTILITIES ===== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.mt-5 { margin-top: 20px; }
+
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-5 { margin-bottom: 20px; }
+
+.p-1 { padding: 4px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.p-5 { padding: 20px; }
