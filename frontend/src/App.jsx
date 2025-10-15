@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { isAuthenticated, logout } from "./auth";
 
-// Layouts
+// Layout Component
 import MainPage from "./pages/mainpage/Index.jsx";
 
-// Public Pages
+// Page Components
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import Lobby from "./pages/lobby/lobby.jsx";
-
-// Private/Protected Pages
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Addhome from "./components/Addhome";
 import Edithome from "./components/Edithome";
@@ -37,6 +36,7 @@ import GenericHomePage from './pages/GenericHomePage';
 import HomeTypeSelectPage from "./pages/typepage/HomeTypeSelectPage.jsx";
 import ManageUser from "./components/manageuser.jsx";
 
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(isAuthenticated());
 
@@ -51,13 +51,13 @@ function App() {
     <BrowserRouter>
       <Routes>
         {loggedIn ? (
-          /* --- Routes for Logged-in Users --- */
+          /* --- ส่วนของผู้ใช้ที่ Login แล้ว --- */
           <Route path="/" element={<MainPage onLogout={handleLogout} />}>
-            {/* Default route after login */}
+            {/* หน้าแรกเริ่มต้นหลัง Login */}
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
             
-            {/* Other protected routes */}
+            {/* หน้าอื่นๆ ทั้งหมดที่ต้อง Login ก่อน */}
             <Route path="addhome" element={<Addhome />} />
             <Route path="edithome/:id" element={<Edithome />} />
             <Route path="homedetail" element={<HomePage />} />
@@ -84,19 +84,19 @@ function App() {
             <Route path="hometype" element={<HomeTypeSelectPage />} />
             <Route path="manageuser" element={<ManageUser />} />
 
-            {/* If logged in user tries to go to login, redirect to dashboard */}
+            {/* ถ้าคน Login แล้วไปหน้า /login จะถูกส่งไป /dashboard */}
             <Route path="/login" element={<Navigate to="/dashboard" />} />
-            {/* Catch-all for any other route, redirect to dashboard */}
+            {/* ถ้าเข้า URL ที่ไม่มีอยู่จริง จะถูกส่งไป /dashboard */}
             <Route path="*" element={<Navigate to="/dashboard" />} />
           </Route>
         ) : (
-          /* --- Routes for Not Logged-in Users --- */
+          /* --- ส่วนของผู้ใช้ที่ยังไม่ได้ Login --- */
           <>
             <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/" element={<Lobby />} />
             
-            {/* If not logged in, any other route redirects to login */}
+            {/* ถ้ายังไม่ Login แล้วพยายามเข้าหน้าอื่น จะถูกส่งกลับมาที่ /login */}
             <Route path="*" element={<Navigate to="/login" />} />
           </>
         )}

@@ -26,10 +26,6 @@ export default function LoginForm({ onLogin }) {
         if (onLogin) {
           onLogin();
         }
-
-        // 2. ใช้ navigate() เพื่อเปลี่ยนหน้า (ดีที่สุดสำหรับ React)
-        // navigate("/dashboard");
-
       } else {
         setError(res.data.error || "Login ล้มเหลว: ไม่ได้รับ Token");
       }
