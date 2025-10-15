@@ -10,19 +10,31 @@ export default function LoginForm({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(""); // ล้าง error เก่าทุกครั้งที่พยายาม login
+
     try {
-      const res = await axios.post("http://localhost:3001/api/login", { username, password });
-      if (res.data.success) {
+      // 1. เปลี่ยน URL เป็นแบบ Relative Path
+      const res = await axios.post("/api/login", { username, password });
+
+      if (res.data.success && res.data.token) {
+        // จัดการข้อมูลหลัง login สำเร็จ
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("role_id", res.data.role_id); // เพิ่มบรรทัดนี้
-        localStorage.setItem("username", res.data.username); // เพิ่มบรรทัดนี้
-        onLogin();
-        window.location.href = "/dashboard"; // หรือ window.location.reload();
+        localStorage.setItem("role_id", res.data.role_id);
+        localStorage.setItem("username", res.data.username);
+        
+        // (ถ้ามี) เรียกฟังก์ชันเพื่ออัปเดตสถานะใน App หลัก
+        if (onLogin) {
+          onLogin();
+        }
+
+        // 2. ใช้ navigate() เพื่อเปลี่ยนหน้า (ดีที่สุดสำหรับ React)
+        // navigate("/dashboard");
+
       } else {
-        setError("Login failed: " + (res.data.error || "รหัสไม่ถูกต้อง"));
+        setError(res.data.error || "Login ล้มเหลว: ไม่ได้รับ Token");
       }
     } catch (err) {
-      setError("Login failed: " + (err.response?.data?.error || "รหัสไม่ถูกต้อง"));
+      setError(err.response?.data?.error || "Username หรือ Password ไม่ถูกต้อง");
     }
   };
 
@@ -69,14 +81,7 @@ export default function LoginForm({ onLogin }) {
             เข้าสู่ระบบ
           </button>
         </form>
-        <div className="text-center mt-3">
-        </div>
       </div>
     </div>
   );
 }
-
-// เวลาจะเรียก API ที่ต้อง login
-axios.get("http://localhost:3001/api/guests", {
-  headers: { Authorization: "Bearer " + localStorage.getItem("token") }
-});
