@@ -4,6 +4,8 @@ services:
   mysql:
     image: mysql:8.0
     container_name: nhms_mysql
+    ports:
+      - "3306:3306" # <-- เพิ่ม 2 บรรทัดนี้
     restart: unless-stopped
     env_file:
       - .env
